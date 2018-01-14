@@ -31,11 +31,10 @@ print("LOADED STREAM & MODEL")
 while True:
     if face_detector.train:
         print("TRAINING MODE")
-        model_handler.processTrainingData()
+        model_handler.process_training_data()
         model_handler.trainModel()
         model.train = False
     else:
-
         try:
 
             ret, frame = face_detector.OpenCVCapture.read()
