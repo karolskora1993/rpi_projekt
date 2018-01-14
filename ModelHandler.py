@@ -1,9 +1,6 @@
 import numpy as np
-
-import struct
 import cv2
 import os
-import fnmatch
 import json
 from datetime import datetime
 
@@ -11,8 +8,7 @@ class ModelHandler():
 
     def __init__(self):	
 
-        with open('config.json') as configs:   
-
+        with open('config.json') as configs:
             self._configs = json.loads(configs.read())
             
     def captureAndDetect(self,frame):
