@@ -177,9 +177,9 @@ class ModelHandler:
 
         print('Training model....')
 
-        model = cv2.face.createEigenFaceRecognizer()
+        model = cv2.face.EigenFaceRecognizer_create()
         model.train(np.asarray(faceArray), np.asarray(labelArray))
-        model.save(self._configs["ClassifierSettings"]["Model"])
+        model.write(self._configs["ClassifierSettings"]["Model"])
         print("Model saved to "+self._configs["ClassifierSettings"]["Model"])
 
         mean = model.getMean().reshape(faceArray[0].shape)

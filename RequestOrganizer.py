@@ -1,12 +1,9 @@
-import urllib
-import urllib2
+import requests
 
 class RequestOrganizer:
 
     @staticmethod
-    def sendRequest(url, send_data):
-        data = urllib.urlencode(send_data)
-        request = urllib2.Request(url, data)
-        response = urllib2.urlopen(request).read()
-
-        return response
+    def sendRequest(url):
+        files = {"image": open("image.png", "rb")}
+        return requests.post(url, files=files)
+        

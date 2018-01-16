@@ -1,3 +1,6 @@
+activate_this = "/home/pi/.virtualenvs/cv/bin/activate_this.py"
+execfile(activate_this, dict(__file__=activate_this))
+import cv2
 import cv2
 import time
 import json
@@ -24,21 +27,25 @@ class FaceDetector:
 
 
 face_detector = FaceDetector()
-model = cv2.face.createEigenFaceRecognizer(threshold=face_detector.configs["ClassifierSettings"]["predictionThreshold"])
-model.load(face_detector.configs["ClassifierSettings"]["Model"])
+model = cv2.face.EigenFaceRecognizer_create(threshold=face_detector.configs["ClassifierSettings"]["predictionThreshold"])
+model.read(face_detector.configs["ClassifierSettings"]["Model"])
 print("LOADED STREAM & MODEL")
+time_sleep = 3
 
 while True:
-    if face_detector.train:
+    if face_detector.train_mode:
         print("TRAINING MODE")
         model_handler.process_training_data()
         model_handler.trainModel()
-        model.train = False
+        model_handler.train_mode = False
     else:
+        print("DETECTION MODE")
         try:
 
             ret, frame = face_detector.OpenCVCapture.read()
+            print("photo taken")
             if not ret:
+                print("not ret")
                 continue
 
             currentImage, detected = model_handler.captureAndDetect(frame)
@@ -50,24 +57,25 @@ while True:
             crop = model_handler.resize(model_handler.crop(image, x, y, w, h))
             label, confidence = model.predict(crop)
 
-            if label:
-
+            if float(confidence) < 1000:
                 print("Person " + str(label) + " Confidence " + str(confidence))
+                time_sleep = 3
 
             else:
-                description = "Person not recognised " + str(label) + " Confidence " + str(confidence)
+                description = "Person not recognised"
+                time_sleep = 20
                 print(description)
-                url = face_detector.configs["ApiSettings"]["URL"]
-                send_data = {
-                    "image": image,
-                    "description": description
-                }
-                RequestOrganizer.sendRequest(face_detector.configs["ApiSettings"]["URL"], )
-
-            time.sleep(1)
+                cv2.imwrite("image.png", image)
+                file = open("image.png","rb")
+                RequestOrganizer.sendRequest(face_detector.configs["ApiSettings"]["URL"])
+                print("image sent")
+                print("setting time sleep to 20 sec")
 
         except cv2.error as e:
             print(e)
+        finally:
+            time.sleep(time_sleep)
+
 
 
 face_detector.OpenCVCapture.release()
